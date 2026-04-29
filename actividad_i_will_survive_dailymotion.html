@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>I Will Survive - Actividad interactiva</title>
+  <style>
+    :root {
+      --bg: #f7f3ff;
+      --card: #ffffff;
+      --text: #231f2f;
+      --muted: #6f6780;
+      --primary: #6d38d1;
+      --primary-dark: #5123a8;
+      --ok: #198754;
+      --bad: #dc3545;
+      --border: #ddd4f5;
+      --soft: #f2ecff;
+      --shadow: 0 12px 30px rgba(37, 26, 73, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #efe6ff, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .app {
+      width: min(980px, 100%);
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      color: var(--primary);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+    }
+
+    h1 {
+      margin: 8px 0;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1;
+    }
+
+    h2 { margin-top: 0; }
+
+    .subtitle {
+      color: var(--muted);
+      max-width: 780px;
+      margin: 0 auto;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.94);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: clamp(18px, 4vw, 32px);
+      margin-bottom: 20px;
+    }
+
+    .video-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #111;
+      margin-top: 18px;
+    }
+
+    .video-wrap iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .score {
+      font-weight: 800;
+      color: var(--primary-dark);
+      background: var(--soft);
+      padding: 10px 14px;
+      border-radius: 999px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--primary);
+      color: white;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    button.secondary {
+      background: #ece5ff;
+      color: var(--primary-dark);
+    }
+
+    .questions {
+      display: grid;
+      gap: 16px;
+    }
+
+    .question {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      background: white;
+    }
+
+    .line {
+      font-size: clamp(1rem, 2.2vw, 1.18rem);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+
+    .blank {
+      display: inline-block;
+      min-width: 110px;
+      padding: 2px 8px;
+      border-bottom: 3px solid var(--primary);
+      color: var(--primary-dark);
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .option {
+      background: #faf8ff;
+      border: 2px solid var(--border);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px;
+      font-weight: 800;
+    }
+
+    .option:hover {
+      border-color: var(--primary);
+      transform: none;
+    }
+
+    .option.selected {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .option.correct {
+      background: var(--ok);
+      border-color: var(--ok);
+      color: white;
+    }
+
+    .option.incorrect {
+      background: var(--bad);
+      border-color: var(--bad);
+      color: white;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: 800;
+      min-height: 24px;
+    }
+
+    .feedback.ok { color: var(--ok); }
+    .feedback.bad { color: var(--bad); }
+
+    .word-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .tag {
+      background: var(--soft);
+      color: var(--primary-dark);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    footer {
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.85rem;
+      margin: 24px 0 4px;
+    }
+
+    @media (max-width: 680px) {
+      body { padding: 14px; }
+      .options { grid-template-columns: 1fr; }
+      .toolbar { align-items: stretch; }
+      .toolbar button, .score { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="eyebrow">Listening activity · A2/B1</div>
+      <h1>I Will Survive</h1>
+      <p class="subtitle">
+        Actividad interactiva tipo <strong>fill in the blank</strong>, centrada en verbos y palabras frecuentes.
+        Escucha el vídeo en Dailymotion y completa cada frase con una de las tres opciones.
+      </p>
+    </header>
+
+    <section class="card">
+      <h2>1. Watch and listen</h2>
+      <div class="video-wrap" aria-label="Vídeo de Dailymotion">
+        <iframe
+          src="https://www.dailymotion.com/embed/video/x2pbrau"
+          title="Gloria Gaynor - I Will Survive"
+          allow="autoplay; fullscreen; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+      </div>
+      <p class="note">
+        Fuente del vídeo: Dailymotion. Si tu red bloquea todo el streaming externo, la alternativa más fiable es usar un vídeo local en formato MP4.
+      </p>
+    </section>
+
+    <section class="card">
+      <div class="toolbar">
+        <div class="score" id="score">Puntuación: 0 / 10</div>
+        <div>
+          <button onclick="checkAnswers()">Comprobar</button>
+          <button class="secondary" onclick="resetActivity()">Reiniciar</button>
+        </div>
+      </div>
+
+      <div class="questions" id="questions"></div>
+    </section>
+
+    <section class="card">
+      <h2>Vocabulary focus</h2>
+      <p class="subtitle" style="text-align:left;margin:0">
+        Palabras clave para practicar antes o después de escuchar:
+      </p>
+      <div class="word-bank">
+        <span class="tag">be</span>
+        <span class="tag">go</span>
+        <span class="tag">come</span>
+        <span class="tag">stay</span>
+        <span class="tag">feel</span>
+        <span class="tag">think</span>
+        <span class="tag">know</span>
+        <span class="tag">learn</span>
+        <span class="tag">try</span>
+        <span class="tag">strong</span>
+        <span class="tag">afraid</span>
+        <span class="tag">life</span>
+        <span class="tag">heart</span>
+      </div>
+    </section>
+
+    <footer>
+      Actividad educativa inspirada en el tema de la canción. No reproduce la letra completa.
+    </footer>
+  </main>
+
+  <script>
+    const data = [
+      {
+        text: "At first, I felt very ____.",
+        answer: "afraid",
+        options: ["afraid", "happy", "early"],
+        hint: "Adjetivo: con miedo."
+      },
+      {
+        text: "Then I learned how to ____ strong.",
+        answer: "be",
+        options: ["go", "be", "make"],
+        hint: "Verbo básico: ser/estar."
+      },
+      {
+        text: "I can ____ without you.",
+        answer: "live",
+        options: ["live", "rain", "open"],
+        hint: "Verbo: vivir."
+      },
+      {
+        text: "I know I will ____.",
+        answer: "survive",
+        options: ["survive", "forget", "arrive"],
+        hint: "Verbo principal: sobrevivir."
+      },
+      {
+        text: "Please do not ____ back again.",
+        answer: "come",
+        options: ["sing", "come", "write"],
+        hint: "Verbo de movimiento."
+      },
+      {
+        text: "I tried to ____ my broken heart.",
+        answer: "fix",
+        options: ["fix", "buy", "close"],
+        hint: "Verbo: reparar/arreglar."
+      },
+      {
+        text: "Now I ____ myself much more.",
+        answer: "love",
+        options: ["love", "lose", "leave"],
+        hint: "Verbo: amar/querer."
+      },
+      {
+        text: "I will not ____ down.",
+        answer: "fall",
+        options: ["fall", "drink", "paint"],
+        hint: "Verbo: caer."
+      },
+      {
+        text: "I have a new ____.",
+        answer: "life",
+        options: ["life", "chair", "window"],
+        hint: "Sustantivo frecuente."
+      },
+      {
+        text: "I feel ____ today.",
+        answer: "strong",
+        options: ["strong", "cold", "small"],
+        hint: "Adjetivo: fuerte."
+      }
+    ];
+
+    const questionsEl = document.getElementById("questions");
+    const scoreEl = document.getElementById("score");
+
+    function renderQuestions() {
+      questionsEl.innerHTML = "";
+      data.forEach((item, index) => {
+        const question = document.createElement("article");
+        question.className = "question";
+        question.innerHTML = `
+          <div class="line">
+            ${index + 1}. ${item.text.replace("____", `<span class="blank" id="blank-${index}">____</span>`)}
+          </div>
+          <div class="options">
+            ${item.options.map(option => `
+              <button class="option" data-index="${index}" data-value="${option}">
+                ${option}
+              </button>
+            `).join("")}
+          </div>
+          <div class="feedback" id="feedback-${index}"></div>
+        `;
+        questionsEl.appendChild(question);
+      });
+
+      document.querySelectorAll(".option").forEach(button => {
+        button.addEventListener("click", () => selectOption(button));
+      });
+    }
+
+    function selectOption(button) {
+      const index = button.dataset.index;
+      document
+        .querySelectorAll(`.option[data-index="${index}"]`)
+        .forEach(btn => btn.classList.remove("selected", "correct", "incorrect"));
+
+      button.classList.add("selected");
+      document.getElementById(`blank-${index}`).textContent = button.dataset.value;
+      document.getElementById(`feedback-${index}`).textContent = "";
+      document.getElementById(`feedback-${index}`).className = "feedback";
+    }
+
+    function checkAnswers() {
+      let score = 0;
+
+      data.forEach((item, index) => {
+        const selected = document.querySelector(`.option[data-index="${index}"].selected`);
+        const feedback = document.getElementById(`feedback-${index}`);
+
+        document
+          .querySelectorAll(`.option[data-index="${index}"]`)
+          .forEach(btn => btn.classList.remove("correct", "incorrect"));
+
+        if (!selected) {
+          feedback.textContent = "Elige una opción.";
+          feedback.className = "feedback bad";
+          return;
+        }
+
+        if (selected.dataset.value === item.answer) {
+          score++;
+          selected.classList.add("correct");
+          feedback.textContent = "Correcto.";
+          feedback.className = "feedback ok";
+        } else {
+          selected.classList.add("incorrect");
+          const correctButton = document.querySelector(
+            `.option[data-index="${index}"][data-value="${item.answer}"]`
+          );
+          correctButton.classList.add("correct");
+          feedback.textContent = `Incorrecto. Pista: ${item.hint}`;
+          feedback.className = "feedback bad";
+        }
+      });
+
+      scoreEl.textContent = `Puntuación: ${score} / ${data.length}`;
+    }
+
+    function resetActivity() {
+      document.querySelectorAll(".option").forEach(btn => {
+        btn.classList.remove("selected", "correct", "incorrect");
+      });
+
+      data.forEach((_, index) => {
+        document.getElementById(`blank-${index}`).textContent = "____";
+        const feedback = document.getElementById(`feedback-${index}`);
+        feedback.textContent = "";
+        feedback.className = "feedback";
+      });
+
+      scoreEl.textContent = `Puntuación: 0 / ${data.length}`;
+    }
+
+    renderQuestions();
+  </script>
+</body>
+</html>
